@@ -64,14 +64,25 @@
 - 발견: README 의 `BOT_GH_TOKEN_CMD="python3 ~/bin/..."` 는 shlex.split 실행이라 `~` 가 확장되지 않음 → 절대경로로 수정
 - 결정: 괜찮음 — 로컬 경로(E3)로 진행
 
-### E3. 로컬 경로 완주 (`run`) — 미실행
+### E3. 로컬 경로 완주 (`run`) — 2026-11-02 실행
 - 작업: poc/jobs/stable-codes.md (Sprint 0 Freeze §1 Stable Code 매퍼, 테스트 #20)
 - 인수 조건·테스트 작성 경위: `poc/acceptance/stable-codes.md` 와 `test/acceptance/stable_codes_test.dart` 는 **AI(대화 세션 Claude)가 작성하고 사람이 검토·승인** — 키트 원칙(사람이 직접 작성)에서 벗어남. 구현 세션(`run`)과는 별도 세션
   - 머지 전 모의 확인: 올바른 참조 구현 20/20 통과, `.name` 식 구현 6건 실패, trim·소문자 보정 구현 AC-5 실패 (참조 구현은 커밋하지 않음)
 - 가설: 최초 접수 후 추가 수동 명령 없이 봇 PR + 필수 체크 2개 통과까지 도착한다
 - 증거: 공통 증거 전부 + `poc/runs/<JOB_ID>/`
 - 성공 판정: VERIFIED → `decide approve` 기록 SHA = 검증 SHA, check-run 근거와 이유 기록
-- 결정:
+- JOB_ID: j20261102-151842-45da / 기준 커밋(main) c3ef892 / Claude Code 2.1.309 · gh 2.103.3 · git 2.43.0
+- Claude 실행: 6턴, 53초, `subtype=success`, 커밋 1, worktree clean, permission_denials 0, total_cost_usd 0.27(구독 로그인 실행 — API 단가 환산 표시값)
+- 타임라인(UTC): 접수 06:18:42 → AGENT_DONE 06:19:35 → PUSHED 06:19:38 → PR_OPEN 06:19:42 → VERIFIED 06:22:06 (약 3분 24초)
+- PR: https://github.com/ZANNABI-LAB/ogan_maum/pull/4 (작성자 `app/ogan-bot`) / head 371bf7d40f5c13b9a452814481601717a449bc63
+- check-run: analyze-and-test = 125127138653 · https://github.com/ZANNABI-LAB/ogan_maum/actions/runs/41399213415/job/125127138653 / protected-paths = 125127138445 · https://github.com/ZANNABI-LAB/ogan_maum/actions/runs/41399213415/job/125127138445 (suite 112190204255, ignored_untrusted 0)
+- 변경: `lib/shared/db/stable_codes.dart`(신규), `test/shared/db/stable_codes_test.dart`(일반 테스트) — 보호 경로 변경 없음, 인수 테스트 미수정
+- 사람 판단: GitHub Approve(SHINJUNGSUN, 371bf7d40f) → `decide approve` 재확인 통과 → HUMAN_APPROVED, 기록 SHA = 검증 SHA, 이유 "인수 테스트 통과, 범위 준수" → GitHub 일반 머지(327a2d7)
+- 사람 개입: `run` 1회 이후 사람 판단(리뷰·decide·머지)까지 추가 명령 없음
+- 발견 1: `--allowedTools` 에 없는 읽기 명령(`cat ... && ls ...`)이 승인 없이 실행됨(거부 0) → README 의 "allowedTools 는 차단이 아니다" 를 실증. 보호는 실행 후 diff 검사가 담당
+- 발견 2: 커밋 작성자가 로컬 git 사용자(사람)로 남음 — Claude 작성 구분은 `[JOB_ID]` 접두사·Co-Authored-By 뿐
+- 발견 3: `verify.yml` 은 `pull_request` 에만 실행 → main push 시 CI 없음 (인수 테스트만 먼저 머지된 동안 main 은 빌드 실패 상태였지만 CI 로는 드러나지 않음)
+- 결정: **성공** — 성공 기준 충족
 
 ### E4. 중단 실험 (별도 작업) — 미실행
 - 절차: `run` 중 Ctrl+C → `status` → worktree 확인
@@ -84,7 +95,7 @@
 - 확인: session_id/url, 브랜치 push, 실행 시간, 구독 사용량 변화, CI 결과
 
 ## 오늘의 결론
-- 성공 기준 충족 여부:
-- 주력 실행 경로:
-- 남은 제약:
-- 다음 단계:
+- 성공 기준 충족 여부: **충족** (E3). 최초 접수 이후 추가 수동 명령 없이 봇 PR + 필수 CI 2개 통과(VERIFIED), 승인 직전 재확인과 사람 판단 이유 기록까지 완료
+- 주력 실행 경로: 로컬 `dispatcher.py run` (구독 로그인 `claude -p`)
+- 남은 제약: E0·E1·E4·E5·E6 미실행 / 인수 테스트를 AI가 작성함(사람 검토) / `docs/` 는 보호 경로 아님 / main push CI 없음 / 무료 플랜이라 public 저장소 전제
+- 다음 단계: (미정)
