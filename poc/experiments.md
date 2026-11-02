@@ -65,6 +65,9 @@
 - 결정: 괜찮음 — 로컬 경로(E3)로 진행
 
 ### E3. 로컬 경로 완주 (`run`) — 미실행
+- 작업: poc/jobs/stable-codes.md (Sprint 0 Freeze §1 Stable Code 매퍼, 테스트 #20)
+- 인수 조건·테스트 작성 경위: `poc/acceptance/stable-codes.md` 와 `test/acceptance/stable_codes_test.dart` 는 **AI(대화 세션 Claude)가 작성하고 사람이 검토·승인** — 키트 원칙(사람이 직접 작성)에서 벗어남. 구현 세션(`run`)과는 별도 세션
+  - 머지 전 모의 확인: 올바른 참조 구현 20/20 통과, `.name` 식 구현 6건 실패, trim·소문자 보정 구현 AC-5 실패 (참조 구현은 커밋하지 않음)
 - 가설: 최초 접수 후 추가 수동 명령 없이 봇 PR + 필수 체크 2개 통과까지 도착한다
 - 증거: 공통 증거 전부 + `poc/runs/<JOB_ID>/`
 - 성공 판정: VERIFIED → `decide approve` 기록 SHA = 검증 SHA, check-run 근거와 이유 기록
