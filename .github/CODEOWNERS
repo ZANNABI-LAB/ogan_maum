@@ -1,0 +1,10 @@
+# 사람이 승인한 판정 기준, 검증 설정, 디스패처는 본인 리뷰 필수
+# 보호 범위는 poc/dispatcher.py 의 PROTECTED_PREFIXES / PROTECTED_FILES, verify.yml 의 protected-paths 와 같다.
+# GITHUB_USERNAME 을 본인 계정으로 바꾸세요.
+# 주의: CODEOWNERS 자체는 머지를 막지 않는다. 브랜치 규칙에서
+# "Require review from Code Owners"를 켜야 효력이 생긴다.
+/test/acceptance/       @SHINJUNGSUN
+/poc/                   @SHINJUNGSUN
+/.github/               @SHINJUNGSUN
+/analysis_options.yaml  @SHINJUNGSUN
+CODEOWNERS              @SHINJUNGSUN

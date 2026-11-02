@@ -1,0 +1,63 @@
+# PR 검증 전용 워크플로
+# - 비밀정보를 쓰지 않는다 (secrets.* 참조 금지), GITHUB_TOKEN 읽기 전용
+# - 배포는 이 워크플로에서 하지 않는다
+#
+# 한계: pull_request 이벤트는 PR 쪽 워크플로 파일로 실행되므로, PR이 이 파일 자체를 바꾸면
+# 이 체크만으로는 검증 설정을 보호할 수 없다. 실제 보호는 신뢰된 main 체크아웃에서 실행되는
+# poc/dispatcher.py 의 보호 경로 검사 + CODEOWNERS 리뷰 + 브랜치 규칙이 함께 담당한다.
+name: verify
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: analyze-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test --reporter expanded
+
+  protected-paths:
+    # 보호 경로(디스패처 PROTECTED_* 와 동일)가 바뀌면 작성자와 무관하게 실패한다.
+    # 보호 경로 변경은 자동 처리 대상이 아니다. 정상적인 보호 파일 변경 절차는 README 참고.
+    name: protected-paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check protected paths
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          echo "$changed"
+          hits=$(echo "$changed" | grep -E '^(test/acceptance/|poc/|\.github/)|^analysis_options\.yaml$|(^|/)CODEOWNERS$' || true)
+          if [ -z "$hits" ]; then
+            echo "No protected paths changed."; exit 0
+          fi
+          echo "::error::Protected paths changed. Not eligible for automated handling:"
+          echo "$hits"
+          exit 1
