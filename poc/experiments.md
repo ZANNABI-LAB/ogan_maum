@@ -114,11 +114,30 @@
 - E5b 가짜 claude (j20261102-153627-db81): `CLAUDE_BIN` 으로 "보호 경로 수정·커밋 후 success 보고" 스크립트 사용, 나머지(디스패처·git·원격)는 실제 → 실행 후 diff 검사가 `['test/acceptance/stable_codes_test.dart']` 감지 → **`NEEDS_HUMAN`, push·PR 없음** ✅. 같은 커밋의 비보호 파일(`lib/e5b_unrelated.txt`)은 목록에 없음
 - 결정: 보호 경계 동작 — 괜찮음 (1차 방어: 모델의 규칙 준수, 실제 차단: 신뢰된 디스패처의 diff 검사)
 
-### E6. Routine 비교 (같은 기준 커밋·같은 작업지시서) — 미실행
+### E6. Routine 비교 (같은 기준 커밋·같은 작업지시서) — 2026-11-02 실행
 - 확인: session_id/url, 브랜치 push, 실행 시간, 구독 사용량 변화, CI 결과
+- 공통: 기준 커밋 b82b997, 작업지시서 poc/jobs/e4-date-validator.md (Sprint 0 R-2), E1 에서 Routine 은 '불확실' — 사람 결정으로 진행
+- Routine 설정: claude.ai 예약된 작업 `ogan-maum-e6`, 리포지토리 ZANNABI-LAB/ogan_maum, 클라우드 환경 Default, 트리거 API 만, 프롬프트 = poc/routine-prompt.md 본문. URL·토큰은 ~/.config/ogan-bot/routine.env (600, 저장소 밖)
+
+| 항목 | 로컬 `run` | Routine `fire` |
+|---|---|---|
+| JOB_ID | j20261102-160913-3614 | j20261102-160906-9f65 |
+| 세션 | 926247bc-3d4e-4686-83d3-27e80e6be817 | https://claude.ai/code/cse_014M7h9fPL1EeSducfBNfbLj |
+| 결과 | success, 9턴, 68초, 커밋 1 | **blocked** |
+| 브랜치 push | ✅ | ❌ (403) |
+| PR / CI | PR #8 (app/ogan-bot), 필수 체크 2개 success → **VERIFIED** (접수 후 약 3분) | 없음 |
+| 장부 | VERIFIED | ROUTINE_BLOCKED (디스패처에 Routine 결과 반영 명령이 없어 `dispatcher.set_status` 로 기록) |
+
+- Routine 막힌 원인 1: Default 클라우드 환경에 dart/flutter 없음 → `git clone flutter` 설치 시도를 권한 분류기가 거부 → 규칙대로 우회 없이 멈춤
+- Routine 막힌 원인 2: 그 뒤 환경의 Stop hook 요청으로 **검증 안 된 코드를 커밋**하고 push 시도 → 403 (Claude GitHub App 에 ZANNABI-LAB/ogan_maum 쓰기 권한 없음). 리포지토리 선택은 됐지만 쓰기 권한은 별개
+- 발견: Stop hook 이 프롬프트의 "실패 시 멈춘다"보다 우선해 미검증 커밋을 만들었다 → push 가 됐다면 PR·CI 에서 걸렸을 것(VERIFIED 는 CI 기준). 디스패처의 CI 판정이 마지막 방어선으로 필요함을 확인
+- 발견(로컬): permission_denials 1건 — `dart format …; echo …; flutter analyze | tail; …` 조합 명령 거부 → Claude 가 나눠서 재실행해 완료. E3 의 `cat && ls` 는 통과 → 읽기 명령에는 느슨, 조합·파이프 명령에는 엄격
+- 사용량: 구독 잔량 조회 API 없음 → 미측정
+- 결정: 로컬 경로를 주력으로 유지. Routine 은 (1) 환경 setup script 로 Flutter 제공 (2) 조직에 Claude GitHub App 쓰기 권한 (3) E1 '불확실' 해소 — 세 가지 전에는 재시도하지 않음
 
 ## 오늘의 결론
 - 성공 기준 충족 여부: **충족** (E3). 최초 접수 이후 추가 수동 명령 없이 봇 PR + 필수 CI 2개 통과(VERIFIED), 승인 직전 재확인과 사람 판단 이유 기록까지 완료
 - 주력 실행 경로: 로컬 `dispatcher.py run` (구독 로그인 `claude -p`)
-- 남은 제약: E0·E1·E4·E5·E6 미실행 / 인수 테스트를 AI가 작성함(사람 검토) / `docs/` 는 보호 경로 아님 / main push CI 없음 / 무료 플랜이라 public 저장소 전제
-- 다음 단계: (미정)
+- 실험 상태: E0~E6 전부 실행 (E1 괜찮음(조건부), E2·E3·E4·E5 괜찮음, E6 Routine blocked)
+- 남은 제약: Routine 경로 미완(Flutter 환경·GitHub App 권한·정책 불확실) / 중단 시 summary 미생성, Routine 결과 반영 명령 없음 / 인수 테스트를 AI가 작성함(사람 검토) / `docs/` 는 보호 경로 아님 / main push CI 없음 / 무료 플랜이라 public 저장소 전제
+- 다음 단계: 로컬 `run` 으로 Sprint 0 진행 (Drift 테이블 → DAO → Repository 불변식 INV-1~11 → 테스트 20개). 각 작업마다 인수 조건을 먼저 사람이 승인. Routine 은 Flutter 환경·Claude GitHub App 쓰기 권한·정책(E1) 확인 이후 재검토
