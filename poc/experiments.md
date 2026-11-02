@@ -46,11 +46,23 @@
 - 읽을 것: https://code.claude.com/docs/en/legal-and-compliance · https://support.claude.com/en/articles/15036540 · https://www.anthropic.com/legal/consumer-terms · OpenAI Codex 인증 문서
 - 증거(인용 + URL) / 결정: 괜찮음 · 불확실 · 안 됨
 
-### E2. GitHub 연결 확인 (Claude 실행 없음) — 미실행
+### E2. GitHub 연결 확인 (Claude 실행 없음) — 2026-11-02 실행
 - 절차: README 3단계 (`adopt` → `open-pr` → `check --wait`)
-- 확인: PR 작성자 = 봇 / 실제 check-run 이름 / 출처(app slug, workflow path, check_suite_id) / 내 계정 Approve 가능 여부 / 토큰 갱신(BOT_GH_TOKEN_CMD) 동작
-- 증거: PR URL, check-run ID·URL, `status` 출력
-- 결정:
+- 기준 커밋(main): 5de53ba / 저장소: ZANNABI-LAB/ogan_maum (public, Ruleset `main-protection`)
+- 봇: GitHub App `ogan-bot` (ogan_maum 만 선택 설치), `BOT_GH_TOKEN_CMD` 로 호출마다 새 설치 토큰 발급 ✅
+- JOB_ID: a20261102-124911-13f5 (`adopt smoke/github-conn`, `lib/main.dart` 만 변경)
+- PR: https://github.com/ZANNABI-LAB/ogan_maum/pull/1 / head 5c7be6f55131fcb45821fef8b20400c40b67f129
+- PR 작성자: `app/ogan-bot` (is_bot) ✅
+- check-run (total_count=2, ignored_untrusted=0):
+  - analyze-and-test = 125084200638 · https://github.com/ZANNABI-LAB/ogan_maum/actions/runs/41385138495/job/125084200638
+  - protected-paths = 125084200559 · https://github.com/ZANNABI-LAB/ogan_maum/actions/runs/41385138495/job/125084200559
+- 출처: `app.slug=github-actions`(app.id 15368), check suite 112154122940 = workflow run 41385138495 의 `check_suite_id`, path `.github/workflows/verify.yml`(@ref 접미사 없음), event `pull_request` ✅ (CHANGES v0.3 남은 제약 중 출처 형식 가정 확인)
+- 판정: missing → in_progress → PASS → `VERIFIED` (CI 약 2분)
+- Ruleset: 리뷰 전 `BLOCKED/REVIEW_REQUIRED`, main 직접 push 는 GH013 으로 거부 ✅
+- 내 계정 Approve: SHINJUNGSUN 이 5c7be6f5 에 APPROVED → `CLEAN` ✅ → 머지 없이 닫음
+- 발견: 닫힌 PR 에도 `decide approve` 가 `HUMAN_APPROVED` 를 기록함 → v0.3.1 에서 PR state 확인 추가 (decide 는 거부, check 는 `PR_CLOSED`)
+- 발견: README 의 `BOT_GH_TOKEN_CMD="python3 ~/bin/..."` 는 shlex.split 실행이라 `~` 가 확장되지 않음 → 절대경로로 수정
+- 결정: 괜찮음 — 로컬 경로(E3)로 진행
 
 ### E3. 로컬 경로 완주 (`run`) — 미실행
 - 가설: 최초 접수 후 추가 수동 명령 없이 봇 PR + 필수 체크 2개 통과까지 도착한다
