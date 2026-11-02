@@ -5,7 +5,7 @@
 > (CI의 protected-paths 는 보조 신호다. PR이 워크플로를 바꾸면 CI만으로는 보호되지 않는다)
 
 - 승인자: @SHINJUNGSUN
-- 승인일: YYYY-MM-DD  ← 검토 후 직접 기입
+- 승인일: 2026-11-02
 - 관련 기준: `docs/sprint0_freeze.md` §1 "Stable Code 정의", §5 테스트 #20
 
 ## 원문 (Sprint 0 Freeze §1, 그대로 인용)
@@ -21,7 +21,7 @@ followUpStatus: none | pending | done
 - 파일: `lib/shared/db/stable_codes.dart` (import: `package:ogan_maum/shared/db/stable_codes.dart`)
 - enum 4개: `RelationType`, `OccasionType`, `Direction`, `FollowUpStatus`
 - 각 enum: 인스턴스 getter `String get dbCode`, 정적 메서드 `static <Enum> fromDbCode(String code)`
-- 알 수 없는 코드: `fromDbCode` 는 `ArgumentError` 를 던진다  ← 승인자 확인
+- 알 수 없는 코드: `fromDbCode` 는 `ArgumentError` 를 던진다 (승인자 확인 2026-11-02)
 - 순수 Dart. 외부 패키지·Flutter 의존 없음. Drift TypeConverter 는 이번 범위 밖
 
 ## 반드시 성립해야 하는 것 (기능)
