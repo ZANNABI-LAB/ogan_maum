@@ -140,4 +140,4 @@
 - 주력 실행 경로: 로컬 `dispatcher.py run` (구독 로그인 `claude -p`)
 - 실험 상태: E0~E6 전부 실행 (E1 괜찮음(조건부), E2·E3·E4·E5 괜찮음, E6 Routine blocked)
 - 남은 제약: Routine 경로 미완(Flutter 환경·GitHub App 권한·정책 불확실) / 중단 시 summary 미생성, Routine 결과 반영 명령 없음 / 인수 테스트를 AI가 작성함(사람 검토) / `docs/` 는 보호 경로 아님 / main push CI 없음 / 무료 플랜이라 public 저장소 전제
-- 다음 단계: (미정)
+- 다음 단계: 로컬 `run` 으로 Sprint 0 진행 (Drift 테이블 → DAO → Repository 불변식 INV-1~11 → 테스트 20개). 각 작업마다 인수 조건을 먼저 사람이 승인. Routine 은 Flutter 환경·Claude GitHub App 쓰기 권한·정책(E1) 확인 이후 재검토
