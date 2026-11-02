@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AI Company 디스패처 v0.2 (M0 PoC)
+AI Company 디스패처 v0.3.1 (M0 PoC)
 
 원칙
 - LLM이 제안하고, 이 코드가 집행한다. 상태는 이 파일만 쓴다 (single writer).
@@ -436,6 +436,10 @@ def check_once(con, job_id):
     if head_after != head:
         log_event(con, job_id, "HEAD_MOVED", {"from": head, "to": head_after})
         return "PENDING"
+    if state != "OPEN":
+        set_status(con, job_id, "PR_CLOSED", note=f"PR state {state}")
+        print(f"[{job_id}] PR 상태 {state} → 판정하지 않음")
+        return "PR_CLOSED"
     print(f"[{job_id}] head={head[:10]} {json.dumps(detail, ensure_ascii=False)} → {verdict}")
     if verdict == "PENDING":
         return "PENDING"
@@ -517,6 +521,8 @@ def cmd_decide(a):
             current, state = pr_head_sha(row["pr_url"])
         except GhError as e:
             sys.exit(f"PR head 재조회 실패 → 승인 보류: {e}")
+        if state != "OPEN":
+            sys.exit(f"PR 상태가 {state} 입니다 (OPEN 아님) → 승인 거부.")
         if current != sha:
             set_status(con, a.job_id, "PR_OPEN", note=f"head changed {sha[:10]}→{current[:10]}; 재검증 필요")
             sys.exit(f"검증 SHA({sha[:10]})와 현재 PR head({current[:10]})가 다릅니다 → 승인 거부. check 로 재검증하세요.")
@@ -629,7 +635,7 @@ def cmd_status(a):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="AI Company dispatcher v0.2")
+    ap = argparse.ArgumentParser(description="AI Company dispatcher v0.3.1")
     sp = ap.add_subparsers(dest="cmd", required=True)
     p = sp.add_parser("run"); p.add_argument("job_file"); p.set_defaults(f=cmd_run)
     p = sp.add_parser("run-local"); p.add_argument("job_file"); p.add_argument("--no-push", action="store_true"); p.set_defaults(f=cmd_run_local)

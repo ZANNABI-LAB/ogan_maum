@@ -62,7 +62,7 @@ python3 poc/dispatcher.py check <JOB_ID> --wait
 ## 5. 로컬 경로 완주 (오늘의 주 실험)
 ```bash
 claude /login                       # 본인 구독 로그인. ANTHROPIC_API_KEY 가 설정돼 있으면 해제
-export BOT_GH_TOKEN_CMD="python3 ~/bin/app_token.py"   # 또는 BOT_GH_TOKEN
+export BOT_GH_TOKEN_CMD="python3 /home/<user>/bin/app_token.py"   # 절대경로 필수(셸을 거치지 않아 ~ 미확장). 또는 BOT_GH_TOKEN
 python3 poc/dispatcher.py run poc/jobs/<job>.md
 ```
 `run`이 하는 일: 접수 → Claude 실행 → 결과 판정 → **보호 경로 검사** → push → 봇 PR(있으면 재사용) → CI 대기(기본 20분, `CI_TIMEOUT_S`) → 결과 기록. 중간에 실패하면 다음 단계로 가지 않고, **사람 판단 직전에서 멈춘다.**

@@ -1,5 +1,9 @@
 # 변경 이력
 
+## v0.3.1 (E2 실제 실행 중 발견)
+- `decide approve`·`check` 가 PR state 를 확인하지 않아 닫힌 PR 에도 HUMAN_APPROVED 가 기록되던 문제 수정: decide 는 OPEN 아니면 거부, check 는 `PR_CLOSED` 기록
+- README: `BOT_GH_TOKEN_CMD` 는 셸 없이 실행되므로 절대경로 필요
+
 ## v0.3 (두 번째 독립 리뷰 반영) — 범위 확대 없음
 
 ### 수정 사항
