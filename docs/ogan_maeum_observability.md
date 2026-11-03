@@ -1,5 +1,7 @@
 # 오간마음 — Observability 플랜 (Aptabase + Sentry)
 
+> ⚠️ **대체됨 (2026-11-03)** — 관측은 스토어 콘솔만 사용한다 (`docs/product/decisions.md` D-08). 이 문서는 이력으로만 보존한다.
+
 > Sprint 0 Freeze를 건드리지 않는 애드온 플랜.
 > 원칙: 장부 데이터(금액·이름·관계·메모)는 어떤 이벤트에도 절대 포함하지 않는다.
 
